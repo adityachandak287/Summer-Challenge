@@ -22,6 +22,7 @@ function setup() {
     submit = createButton("Submit");
 
     submit.position(3 * width / 4 - submit.width, 50);
+    submit.mousePressed(submitData);
     //submit.style('align','center');
 
     var config = {
@@ -36,13 +37,15 @@ function setup() {
 
     database = firebase.database();
 
-    results = database.ref("Scores");
+    let ref  = database.ref("Scores");
 
-    submit.mousePressed(submitData);
+    ref.on('value',gotData,errData);
 
-    results.on('value',gotData,errData);
+
 
 }
+
+
 
 function errData(err)
 {
@@ -52,6 +55,7 @@ function errData(err)
 function gotData(data)
 {
     redraw();
+
 
     records = Object.keys(data.val());
 
@@ -74,17 +78,29 @@ function gotData(data)
 
 
 
-    console.log(players);
+    //console.log(players);
+    console.log("Got data!");
+    //console.log(data.val());
+
 }
 
 function submitData()
 {
-    var data = {
-        name: sel.value() ,
-        result: result.value()
-    };
+    console.log("Submitting");
+    if(result.value()!== '') {
+        let data = {
+            name: sel.value(),
+            result: result.value()
+        };
+        result.value('');
 
-    results.push(data);
+        let ref = database.ref("Scores");
+
+        let res = ref.push(data);
+        console.log("Submitted!");
+
+        //console.log(res.key);
+    }
 
 }
 
